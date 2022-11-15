@@ -1,7 +1,11 @@
 import json
+import logging
 import os
 
 import boto3
+
+logger = logging.getLogger('patientcheckout')
+logger.setLevel(logging.INFO)
 
 s3 = boto3.client('s3')
 sns_client = boto3.client('sns')
@@ -13,12 +17,17 @@ def lambda_handler(event, context):
     bucket_name = event['Records'][0]['s3']['bucket']['name']
     file_key = event['Records'][0]['s3']['object']['key']
 
+    logger.info('Reading {} from {}'.format(file_key, bucket_name))
     obj = s3.get_object(Bucket=bucket_name, Key=file_key)
+
     file_content = obj['Body'].read().decode('utf-8')
     checkout_events = json.loads(file_content)
 
     for each_event in checkout_events:
         print(each_event)
+        logger.info('Messaging being published')
+        logger.info(each_event)
+
         sns_client.publish(
             TopicArn=topic,
             Message=json.dumps({'default': json.dumps(each_event)}),
