@@ -11,6 +11,8 @@ Globals:
       - x86_64
 
 Resources:
+  PatientCheckoutTopic:
+    Type: AWS::SNS::Topic
   PatientCheckoutBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -23,9 +25,14 @@ Resources:
       Policies:
         - S3ReadPolicy:
             BucketName: !Sub ${AWS::StackName}-${AWS::AccountId}-${AWS::Region}
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt PatientCheckoutTopic.TopicName
       Events:
         S3Event:
           Type: S3
           Properties:
             Bucket: !Ref PatientCheckoutBucket
             Events: s3:ObjectCreated:*
+      Environment:
+        Variables:
+          PATIENT_CHECKOUT_TOPIC: !Ref PatientCheckoutTopic
