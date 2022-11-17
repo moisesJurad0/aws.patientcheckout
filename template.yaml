@@ -51,3 +51,13 @@ Resources:
           Type: SNS
           Properties:
             Topic: !Ref PatientCheckoutTopic
+  ErrorHandlerFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: patient_checkout/
+      Handler: errorhandler.lambda_handler
+      Events:
+        SNSEvent:
+          Type: SNS
+          Properties:
+            Topic: !Ref PatientCheckoutDLQ
