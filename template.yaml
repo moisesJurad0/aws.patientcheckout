@@ -11,6 +11,8 @@ Globals:
       - x86_64
 
 Resources:
+  PatientCheckoutDLQ:
+    Type: AWS::SNS::Topic
   PatientCheckoutTopic:
     Type: AWS::SNS::Topic
   PatientCheckoutBucket:
@@ -27,6 +29,9 @@ Resources:
             BucketName: !Sub ${AWS::StackName}-${AWS::AccountId}-${AWS::Region}
         - SNSPublishMessagePolicy:
             TopicName: !GetAtt PatientCheckoutTopic.TopicName
+      DeadLetterQueue:
+        Type: SNS
+        TargetArn: !Ref PatientCheckoutDLQ
       Events:
         S3Event:
           Type: S3
